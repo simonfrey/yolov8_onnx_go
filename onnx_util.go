@@ -2,6 +2,8 @@ package main
 
 import (
 	ort "github.com/yalue/onnxruntime_go"
+	"os"
+	"path"
 	"runtime"
 )
 
@@ -38,7 +40,7 @@ func InitYolo8Session(input []float32) (ModelSession, error) {
 		defer options.Destroy()
 	}
 
-	session, err := ort.NewAdvancedSession(ModelPath,
+	session, err := ort.NewAdvancedSessionWithONNXData(ModelData,
 		[]string{"images"}, []string{"output0"},
 		[]ort.ArbitraryTensor{inputTensor}, []ort.ArbitraryTensor{outputTensor}, options)
 
@@ -58,19 +60,42 @@ func InitYolo8Session(input []float32) (ModelSession, error) {
 func getSharedLibPath() string {
 	if runtime.GOOS == "windows" {
 		if runtime.GOARCH == "amd64" {
-			return "./third_party/onnxruntime.dll"
+			tmpPath := path.Join(os.TempDir(), "onnxruntime.dll")
+			err := os.WriteFile(tmpPath, OnnxruntimeDLL, 0644)
+			if err != nil {
+				panic(err)
+			}
+			return tmpPath
 		}
 	}
 	if runtime.GOOS == "darwin" {
 		if runtime.GOARCH == "arm64" {
-			return "./third_party/onnxruntime_arm64.dylib"
+			tmpPath := path.Join(os.TempDir(), "onnxruntime_arm64.dylib")
+			err := os.WriteFile(tmpPath, OnnxruntimeARM64Dylib, 0644)
+			if err != nil {
+				panic(err)
+			}
+			return tmpPath
 		}
 	}
 	if runtime.GOOS == "linux" {
 		if runtime.GOARCH == "arm64" {
-			return "../third_party/onnxruntime_arm64.so"
+			tmpPath := path.Join(os.TempDir(), "onnxruntime_arm64.so")
+			err := os.WriteFile(tmpPath, OnnxruntimeARM64So, 0644)
+			if err != nil {
+				panic(err)
+			}
+
+			return tmpPath
 		}
-		return "./third_party/onnxruntime.so"
+
+		tmpPath := path.Join(os.TempDir(), "onnxruntime.so")
+		err := os.WriteFile(tmpPath, OnnxruntimeSo, 0644)
+		if err != nil {
+			panic(err)
+		}
+
+		return tmpPath
 	}
 	panic("Unable to find a version of the onnxruntime library supporting this system.")
 }

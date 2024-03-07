@@ -7,28 +7,27 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
-	"net/http"
+	"log"
 	"os"
+	"time"
 )
 
 // Main function that defines
 // a web service endpoints a starts
 // the web service
 func main() {
-	server := http.Server{
-		Addr: "0.0.0.0:8080",
+	path := os.Args[1]
+	if path == "" {
+		log.Fatal("Path to image is not provided")
 	}
-	http.HandleFunc("/", index)
-	http.HandleFunc("/detect", detect)
-	server.ListenAndServe()
-}
+	n := time.Now()
+	objs, err := detectPath(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(objs))
+	fmt.Println("TOOK", time.Since(n))
 
-// Site main page handler function.
-// Returns Content of index.html file
-func index(w http.ResponseWriter, _ *http.Request) {
-	file, _ := os.Open("index.html")
-	buf, _ := io.ReadAll(file)
-	w.Write(buf)
 }
 
 // Handler of /detect POST endpoint
@@ -36,15 +35,21 @@ func index(w http.ResponseWriter, _ *http.Request) {
 // through YOLOv8 object detection network and returns and array
 // of bounding boxes.
 // Returns a JSON array of objects bounding boxes in format [[x1,y1,x2,y2,object_type,probability],..]
-func detect(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(0)
-	file, _, _ := r.FormFile("image_file")
+func detectPath(filePath string) ([]byte, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("Error opening file: %w", err)
+	}
+
 	boxes, err := detect_objects_on_image(file)
 	if err != nil {
-		fmt.Println(err.Error())
+		return nil, fmt.Errorf("Error processing image: %w", err)
 	}
-	buf, _ := json.Marshal(&boxes)
-	w.Write(buf)
+	buf, err := json.MarshalIndent(&boxes, "", " ")
+	if err != nil {
+		return nil, fmt.Errorf("Error marshalling data: %w", err)
+	}
+	return buf, nil
 }
 
 // Function receives an image,
