@@ -8,7 +8,7 @@ import (
 )
 
 func InitYolo8Session(input []float32) (ModelSession, error) {
-	//ort.SetSharedLibraryPath(getSharedLibPath())
+	ort.SetSharedLibraryPath(getSharedLibPath())
 	err := ort.InitializeEnvironment()
 	if err != nil {
 		return ModelSession{}, err
