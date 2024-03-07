@@ -21,6 +21,7 @@ var OnnxruntimeSo []byte
 var ModelData []byte
 var (
 	UseCoreML  = false
+	UseCuda    = false
 	Blank      []float32
 	Yolo8Model ModelSession
 )

@@ -20,6 +20,10 @@ func main() {
 	if path == "" {
 		log.Fatal("Path to image is not provided")
 	}
+
+	if os.Getenv("USE_CUDA") == "true" {
+		UseCuda = true
+	}
 	n := time.Now()
 	objs, err := detectPath(path)
 	if err != nil {

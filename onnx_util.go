@@ -31,6 +31,14 @@ func InitYolo8Session(input []float32) (ModelSession, error) {
 		return ModelSession{}, err
 	}
 
+	if UseCuda {
+		e = options.AppendExecutionProviderCUDA(&ort.CUDAProviderOptions{})
+		if e != nil {
+			options.Destroy()
+			return ModelSession{}, err
+		}
+		defer options.Destroy()
+	}
 	if UseCoreML { // If CoreML is enabled, append the CoreML execution provider
 		e = options.AppendExecutionProviderCoreML(0)
 		if e != nil {
