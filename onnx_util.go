@@ -36,6 +36,10 @@ func InitYolo8Session(input []float32) (ModelSession, error) {
 		if err != nil {
 			return ModelSession{}, err
 		}
+		err = opts.Update(map[string]string{"device_id": "1"})
+		if err != nil {
+			return ModelSession{}, err
+		}
 		err = options.AppendExecutionProviderCUDA(opts)
 		if err != nil {
 			options.Destroy()
