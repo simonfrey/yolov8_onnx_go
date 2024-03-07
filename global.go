@@ -17,6 +17,9 @@ var OnnxruntimeARM64So []byte
 //go:embed third_party/onnxruntime.so
 var OnnxruntimeSo []byte
 
+//go:embed third_party/libonnxruntime_providers_cuda.so
+var OnnxruntimeCUDASo []byte
+
 //go:embed yolov8m.onnx
 var ModelData []byte
 var (

@@ -105,6 +105,16 @@ func getSharedLibPath() string {
 			return tmpPath
 		}
 
+		if UseCuda {
+			tmpPath := path.Join(os.TempDir(), "libonnxruntime_providers_cuda.so")
+			err := os.WriteFile(tmpPath, OnnxruntimeCUDASo, 0644)
+			if err != nil {
+				panic(err)
+			}
+
+			return tmpPath
+
+		}
 		tmpPath := path.Join(os.TempDir(), "onnxruntime.so")
 		err := os.WriteFile(tmpPath, OnnxruntimeSo, 0644)
 		if err != nil {
